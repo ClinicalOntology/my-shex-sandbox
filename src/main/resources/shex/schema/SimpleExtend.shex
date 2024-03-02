@@ -1,0 +1,9 @@
+BASE <http://a.example/>
+
+<S>  {
+ <p> [0]
+}
+
+<T> extends @<S> {
+ <p> [1]
+}
