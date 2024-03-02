@@ -9,11 +9,16 @@ import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.shex.*;
 import org.apache.jena.shex.sys.ShexLib;
 import org.apache.jena.vocabulary.RDF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 
 public class ShExValidator {
-    static {
-        LogCtl.setLogging();
-    }
+
+    private static final Logger logger = LoggerFactory.getLogger(ShExValidator.class);
 
     public static void main(String... args) {
 
@@ -31,14 +36,14 @@ public class ShExValidator {
             //String SHAPES = "shex/schema/ExtendAND3G.shex";
             //String DATA = "shex/data/sABCDE.ttl";
 
-            System.out.println("Reading data from: " + dataFilePath);
+            logger.info("Reading data from: " + dataFilePath);
             Graph dataGraph = RDFDataMgr.loadGraph(dataFilePath);
 
-            System.out.println("Loading schema: " + schemaPath);
+            logger.info("Loading schema: " + schemaPath);
             ShexSchema shexSchema = Shex.readSchema(schemaPath);
 
-            System.out.println("Using focus node: " + focusNodeIri);
-            System.out.println("Using shape: " + shapeIri);
+            logger.info("Using focus node: " + focusNodeIri);
+            logger.info("Using shape: " + shapeIri);
 
             // Shapes map.
             Node focusNode = NodeFactory.createURI(focusNodeIri);
@@ -53,11 +58,11 @@ public class ShExValidator {
 //        ShapeMap shapeMapAlt = ShapeMap.record(myClass, shape1);
 
             // Validate
-            System.out.println();
-            System.out.println("Validate");
             ShexReport report = ShexValidator.get().validate(dataGraph, shexSchema, shapeMap);
-            System.out.println();
-            ShexLib.printReport(report);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ShexLib.printReport(outputStream, report);
+            logger.info("Validation - conformant?: " + report.conforms());
+            logger.info(new String(outputStream.toByteArray(), Charset.defaultCharset()));
         }
     }
 }
